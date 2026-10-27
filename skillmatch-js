@@ -1,0 +1,135 @@
+function criarContador() {
+  let contador = 0;
+
+  return function () {
+    contador++;
+    return contador;
+  };
+}
+
+const contador = criarContador();
+
+class Pessoa {
+  constructor(nome, areaInteresse) {
+    this.nome = nome;
+    this.areaInteresse = areaInteresse;
+  }
+}
+
+class Candidato extends Pessoa {
+  constructor(nome, areaInteresse, habilidades, experiencia) {
+    super(nome, areaInteresse);
+    this.habilidades = habilidades;
+    this.experiencia = experiencia;
+  }
+}
+
+const candidato = new Candidato(
+  "Fernanda",
+  "Front-End",
+  ["HTML", "CSS", "JavaScript", "Git"],
+  1
+);
+
+const vagas = [
+  {
+    empresa: "Tech Solutions",
+    cargo: "Desenvolvedor Front-End Jr",
+    requisitos: ["HTML", "CSS", "JavaScript"]
+  },
+  {
+    empresa: "Startup React",
+    cargo: "Desenvolvedor React Jr",
+    requisitos: ["HTML", "CSS", "JavaScript", "React"]
+  },
+  {
+    empresa: "Digital Factory",
+    cargo: "Frontend Trainee",
+    requisitos: ["HTML", "CSS", "Git", "GitHub"]
+  }
+];
+
+function calcularCompatibilidade(candidato, vaga) {
+  const encontradas = vaga.requisitos.filter(
+    requisito => candidato.habilidades.includes(requisito)
+  );
+
+  return Math.round(
+    (encontradas.length / vaga.requisitos.length) * 100
+  );
+}
+
+function classificar(percentual) {
+  if (percentual >= 80) {
+    return "Alta Compatibilidade";
+  } else if (percentual >= 50) {
+    return "Media Compatibilidade";
+  }
+
+  return "Baixa Compatibilidade";
+}
+
+function listarFaltantes(candidato, vaga) {
+  return vaga.requisitos.filter(
+    requisito => !candidato.habilidades.includes(requisito)
+  );
+}
+
+function executarCallback(callback) {
+  callback();
+}
+
+function carregarVagas() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(vagas);
+    }, 1000);
+  });
+}
+
+async function iniciar() {
+  const vagasCarregadas = await carregarVagas();
+
+  executarCallback(() => {
+    const resultados = [];
+
+    for (let i = 0; i < vagasCarregadas.length; i++) {
+      const vaga = vagasCarregadas[i];
+
+      const compatibilidade =
+        calcularCompatibilidade(candidato, vaga);
+
+      resultados.push({
+        empresa: vaga.empresa,
+        cargo: vaga.cargo,
+        compatibilidade,
+        classificacao: classificar(compatibilidade),
+        faltantes: listarFaltantes(candidato, vaga)
+      });
+    }
+
+    console.log("===== RELATORIO =====");
+
+    resultados.forEach(resultado => {
+      console.log(resultado);
+    });
+
+    const melhorVaga = resultados.reduce(
+      (melhor, atual) =>
+        atual.compatibilidade > melhor.compatibilidade
+          ? atual
+          : melhor
+    );
+
+    console.log("\nMelhor vaga:");
+    console.log(melhorVaga);
+
+    console.log("\nVagas analisadas:");
+    console.log(resultados.map(v => v.cargo));
+
+    console.log("\nTotal de analises:");
+    console.log(contador());
+  });
+}
+
+iniciar();
